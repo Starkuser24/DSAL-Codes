@@ -1,0 +1,114 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+struct Client
+{
+    string name;
+    int phonenumber;
+};
+class Hashtable
+{
+    public:
+    static const int size=10;
+    Client table[size];
+    int collisions[size];
+    int hash(int key) {return key%size;}
+    Hashtable() {for(int i=0;i<size;i++) collisions[i]=0;}
+    void Linearprobing(Client clnt);
+    void Quadraticprobing(Client clnt);
+    void search(int phonenumber);
+};
+void Hashtable::Linearprobing(Client clnt)
+{
+    int index=hash(clnt.phonenumber);
+    int count=0;
+    while(collisions[index]==1)
+    {
+        index=(index+1)%size;
+        count++;
+    }
+    table[index]=clnt;
+    collisions[index]=1;
+    cout<<"Inserted "<<clnt.name<<"'s Phone Number after "<<count<<" collisions using Linear Probing";
+    
+}
+
+void Hashtable::Quadraticprobing(Client clnt)
+{
+    int index=hash(clnt.phonenumber);
+    int count=0;
+    while(collisions[index]!=0 && collisions[index]!=clnt.phonenumber)
+    {
+        count++;
+        index=(hash(clnt.phonenumber)+ count*count)%size;
+    }
+    table[index]=clnt;
+    collisions[index]=1;
+    cout<<"Inserted "<<clnt.name<<"'s Phone Number after "<<count<<" collisions using Quadratic Probing";    
+}
+void Hashtable::search(int phonenumber)
+{
+    int index=hash(phonenumber);
+    int count=0;
+    while(collisions[index]!=0)
+    {
+        if(table[index].phonenumber==phonenumber)
+        {
+            cout<<"Found "<<table[index].name<<"'s Phone Number after "<<count<<" collisions using Linear probing";
+        }
+        else
+        {
+            cout<<"Phone Number not found!";
+        }
+        index=(index+1)%size;
+        count++;
+    }
+    
+}
+
+int main()
+{
+    int ch=1;
+    int num,x;
+    Hashtable ht;
+    string name;
+    while(ch==1)
+    {
+        cout<<"\n1. Insert Number\n2. Search Number\n3. Exit";
+        cout<<"\nEnter your choice:";
+        cin>>ch;
+        switch(ch)
+        {
+            case 1:
+            cout<<"Enter Name: ";
+            cin>>name;
+            cout<<"Enter Number:";
+            cin>>num;
+            cout<<"\n1. Linear Probing\n2. Quadratic probing"<<endl;
+            cin>>x;
+            if(x==1) ht.Linearprobing({name, num});
+            else if(x==2) ht.Quadraticprobing({name,num});
+            else
+            {
+                cout<<"Invalid Choice";
+            }
+            break;
+            case 2:
+            cout<<"Enter the number you want to search: ";
+            cin>>num;
+            ht.search(num);
+            break;
+            
+            case 3:
+            cout<<"Thank you for using this program!";
+            ch=0;
+            default:
+            cout<<"Invalid Choice!";
+            break;
+        }
+    }
+    return 0;
+    
+}

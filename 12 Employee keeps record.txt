@@ -1,0 +1,137 @@
+#include<iostream> 
+#include<fstream> 
+#include<cstring> 
+using namespace std; 
+struct Employee { 
+ int id; 
+ char name[50]; 
+ char designation[50]; 
+ float salary; 
+};
+void addEmployee(fstream& file) { 
+ Employee emp; 
+ cout<<"\n Enter employee ID: "; 
+ cin>>emp.id; 
+ cout<<"\n Enter employee name: "; 
+ cin.ignore(); 
+ cin.getline(emp.name, 50); 
+ cout<<"\n Enter employee designation: "; 
+ cin.getline(emp.designation, 50); 
+ cout<<"\n Enter employee salary: "; 
+ cin>>emp.salary; 
+ 
+ file.seekp(0, ios::end); // Move the write pointer to the end of the 
+ file << emp.id << "\n" << emp.name << "\n" << emp.designation << "\n" 
+<< emp.salary << "\n";
+ // Store employee data as text-based entries, separated by a newline character ('\n') 
+} 
+void deleteEmployee(fstream& file) { 
+ int id; 
+ cout<<"\n Enter the ID of the employee to be deleted: "; 
+ cin>>id; 
+ Employee emp; 
+ bool found = false; 
+ fstream tempFile("temp.dat", ios::out | ios::binary); // Create a temporary file for rewriting the data 
+ 
+ while (file >> emp.id) { 
+ file.ignore(); 
+ file.getline(emp.name, 50); 
+ file.getline(emp.designation, 50); 
+ file >> emp.salary; 
+ file.ignore(); 
+ 
+ if (emp.id == id) { 
+ found = true; 
+  continue; // Skip writing the deleted employee record to the temporary file 
+ } 
+ 
+ tempFile << emp.id << "\n" << emp.name << "\n" << emp.designation 
+<< "\n" << emp.salary << "\n"; 
+ // Write the employee record to the temporary file 
+ } 
+ 
+ file.close(); 
+ tempFile.close(); 
+ 
+ remove("employee.dat"); // Delete the original file 
+ rename("temp.dat", "employee.dat"); // Rename the temporary file to the original file name 
+ 
+ if (found) { 
+ cout<<"\n Employee with ID: "<<id<<" has been deleted."; 
+ } else { 
+ cout<<"\n Employee with ID: "<<id<<" not found."; 
+ } 
+} 
+void displayEmployee(fstream& file) { 
+ int id; 
+ cout<<"\n Enter the ID of the employee to be displayed: "; 
+ cin>>id; 
+ Employee emp; 
+ bool found = false; 
+ 
+ while (file >> emp.id) { 
+ file.ignore(); 
+ file.getline(emp.name, 50); 
+ file.getline(emp.designation, 50); 
+ file >> emp.salary; 
+ file.ignore(); 
+ 
+ if (emp.id == id) { 
+ found = true; 
+ break; 
+ } 
+ } 
+ 
+ if (found) { 
+ cout<<"\n Employee ID: "<<emp.id; 
+ cout<<"\n Employee name: "<<emp.name; 
+ cout<<"\n Employee designation: "<<emp.designation; 
+ cout<<"\n Employee salary: "<<emp.salary; 
+ } else { 
+ cout<<"\n Employee with ID: "<<id<<" not found."; 
+ } 
+} 
+int main() { 
+ fstream file("employee.dat", ios::in | ios::out | ios::app); // Open the file in input/output and append mode 
+ 
+ if (!file) { 
+ cout<<"\n Error opening file"; 
+ return 1; 
+ } 
+ 
+ int choice; 
+ do { 
+ cout<<"\n 1. Add employee info: "; 
+ cout<<"\n 2. Delete employee info: "; 
+ cout<<"\n 3. Display employee info: "; 
+ cout<<"\n 4. Exit"; 
+ cout<<"\n Enter your choice: "; 
+ cin>>choice; 
+ 
+ switch(choice) { 
+ case 1:{ 
+ addEmployee(file); 
+ break; 
+ } 
+ case 2:{ 
+ deleteEmployee(file); 
+ break; 
+ } 
+ case 3:{ 
+ displayEmployee(file); 
+ break; 
+ } 
+ case 4:{ 
+ exit(0); 
+ break; 
+ } 
+ default:{ 
+ cout<<"\n Error! Invalid choice"; 
+ break; 
+ } 
+ } 
+ } while(choice != 4); 
+ 
+ file.close(); 
+ return 0; 
+} 
